@@ -23,7 +23,36 @@ menu = st.tabs(["🔧 Optimasi Produksi", "📦 Model Persediaan (EOQ)", "⏳ Mo
 # 1. Linear Programming (Optimasi Produksi)
 # ===============================
 
+with tab1:
+    st.header("Model Optimasi Produksi")
+    st.write("Gunakan metode **Linear Programming** untuk menentukan jumlah produk yang maksimal dengan batasan sumber daya.")
 
+    c = [-40, -60]  # Koefisien fungsi objektif (negatif karena linprog meminimalkan)
+    A = [[2, 3]]  # Koefisien kendala
+    b = [100]  # Batasan kendala
+
+    res = linprog(c, A_ub=A, b_ub=b, bounds=[(0, None), (0, None)], method='highs')
+    
+    if res.success:
+        x, y = res.x
+        st.success(f"Jumlah Meja (x): {x:.2f}")
+        st.success(f"Jumlah Kursi (y): {y:.2f}")
+        st.info(f"Total Keuntungan Maksimum: Rp{(-res.fun)*1000:,.0f}")
+
+        # Visualisasi grafik batasan
+        st.subheader("Visualisasi Batasan")
+        x_vals = np.linspace(0, 60, 200)
+        y_vals = (100 - 2 * x_vals) / 3
+        plt.figure()
+        plt.plot(x_vals, y_vals, label="2x + 3y = 100")
+        plt.fill_between(x_vals, 0, y_vals, alpha=0.3)
+        plt.xlabel("Produk A (Meja)")
+        plt.ylabel("Produk B (Kursi)")
+        plt.axhline(0)
+        plt.axvline(0)
+        plt.scatter(x, y, color='red', label='Solusi Optimal')
+        plt.legend()
+        st.pyplot(plt)
 
 # ===============================
 # 2. EOQ Model
